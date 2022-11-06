@@ -29,26 +29,24 @@ from buildutils.plugins import CoveragePlugin, IntegrationPlugin, MutationPlugin
 @click.option('--plugins', '-p')
 @click.option('--list-plugins', '-l', is_flag=True)
 def main(plugins: str, list_plugins: bool):
-    plugin_names = []
-    if plugins is not None:
-        plugin_names = plugins.split(',')
+    plugin_names = plugins.split(',') if plugins is not None else []
 
     build_config = (
         BuildConfiguration()
         .config('build.ini')
         .plugins(
             EnsureVenvActivePlugin(),
-            with_alias('clean', GenericCleanPlugin('CLEAN')),
-            GenericCommandPlugin('INSTALL'),
-            with_alias('generate-models', GenericCommandPlugin('GENERATE')),
-            with_alias('flake', FlakePlugin()),
+            with_alias('clean', GenericCleanPlugin('CLEAN', 'Remove previous build files.')),
+            with_alias('install', GenericCommandPlugin('INSTALL', 'Install required dependencies from requirements.txt file.')),
+            with_alias('generate-models', GenericCommandPlugin('GENERATE', 'Generate OpenAPI models from spec file.')),
+            FlakePlugin(),
             CoveragePlugin(),
             IntegrationPlugin(),
             MutationPlugin(),
             group_plugins(
                 'generate-docs',
-                GenericCommandPlugin('PREPARE_DOCS'),
-                GenericCommandPlugin('GENERATE_DOCS')
+                GenericCommandPlugin('PREPARE_DOCS', 'Prepare Sphinx for generating documentation from inline comments.'),
+                GenericCommandPlugin('GENERATE_DOCS', 'Generate documentation from inline comments using Sphinx')
             )
         )
     )
@@ -61,6 +59,7 @@ def main(plugins: str, list_plugins: bool):
 
 if __name__ == '__main__':
     main()
+
 ```
 
 ### Example build.ini File
