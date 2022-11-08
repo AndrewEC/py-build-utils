@@ -108,7 +108,7 @@ class _CreateTestbedCommand(Command):
 class _MutationTestCommand(StatusBasedProcessCommand):
 
     def __init__(self, command: str):
-        super().__init__('mutation-test', -1, command)
+        super().__init__('mutation-test', [-1], command)
 
     def execute(self) -> bool:
         with _ChangeDirectory(_source_directory, _testbed_directory):
@@ -123,7 +123,7 @@ class _MutationTestReportCommand(StatusBasedProcessCommand):
     TESTBED_REPORT_PATH = './_mutmutbed/html/index.html'
 
     def __init__(self):
-        super().__init__('mutation-test-report', 0, 'mutmut html')
+        super().__init__('mutation-test-report', [0], 'mutmut html')
 
     def execute(self):
         with _ChangeDirectory(_source_directory, _testbed_directory):

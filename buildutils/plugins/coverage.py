@@ -47,7 +47,7 @@ class CoveragePlugin(Plugin):
 class _CoverageCommand(StatusBasedProcessCommand):
 
     def __init__(self, command: str):
-        super().__init__('coverage', 0, command)
+        super().__init__('coverage', [0], command)
 
 
 class _CoverageReportCommand(StatusBasedProcessCommand):
@@ -55,7 +55,7 @@ class _CoverageReportCommand(StatusBasedProcessCommand):
     REPORT_PATH = './htmlcov/index.html'
 
     def __init__(self):
-        super().__init__('coverage-report', 0, 'coverage html')
+        super().__init__('coverage-report', [0], 'coverage html')
 
     def execute(self):
         if not super().execute():

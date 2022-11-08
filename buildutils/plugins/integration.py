@@ -27,7 +27,7 @@ class IntegrationPlugin(Plugin):
 class _IntegrationTestCommand(StatusBasedProcessCommand):
 
     def __init__(self, command: str):
-        super().__init__('integration-test', 0, command)
+        super().__init__('integration-test', [0], command)
 
 
 class _IntegrationCleanupCommand(FileCleanupCommand):

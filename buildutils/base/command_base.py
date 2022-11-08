@@ -39,7 +39,7 @@ class Command(ABC):
         Args:
             name (str): The name of the command. The built-in commands typically use this for logging purposes.
         """
-        self.name = name
+        self.name = name.lower().replace(' ', '_')
 
     @abstractmethod
     def execute(self) -> bool:
@@ -53,19 +53,19 @@ class StatusBasedProcessCommand(Command):
     the successful status code provided.
     """
 
-    def __init__(self, name: str, success_status: int, command: str):
+    def __init__(self, name: str, success_statuses: List[int], command: str):
         """
         Initializes the status based process command.
 
         Args:
             name (str): The name of the command.
-            success_status (int): The exit code that should be returned by the subprocess for this command to be
+            success_statuses (List[int]): The exit code that should be returned by the subprocess for this command to be
             considered successful.
             command (str): The command and associated arguments in a fully formed string that will be executed as a
             subprocess.
         """
         super().__init__(name)
-        self._success_status = success_status
+        self._success_status = success_statuses
         self._command = command
 
     def execute(self) -> bool:
@@ -76,7 +76,7 @@ class StatusBasedProcessCommand(Command):
         return True
 
     def _was_successful(self, status: int) -> bool:
-        return status == self._success_status
+        return status in self._success_status
 
     def _execute_command(self) -> int:
         parsed_command = parse_python_command_string(self._command)
@@ -112,8 +112,8 @@ class ReportOpenCommand(Command):
             return False
         try:
             os.startfile(os.path.abspath(self._file))
-        except Exception:
-            print(f'Could not open report [{self._file}]')
+        except Exception as e:
+            print(f'Could not open report: [{self._file}], cause: [{e}]')
             return False
         return True
 
@@ -121,7 +121,7 @@ class ReportOpenCommand(Command):
 class ReportCheckCommand(Command):
 
     """
-    An abstract command that provides a rough outlinine for creating a command with the purpose of opening
+    An abstract command that provides a rough outline for creating a command with the purpose of opening
     a previously generated report, such as a code coverage report, and verifying the metrics defined within the
     report match the minimum thresholds required for the metric.
     """
@@ -156,7 +156,7 @@ class FileCleanupCommand(Command):
 
         Args:
               name (str): The name of the command.
-              paths (List[str]): The relative or absolute list of paths to a set of paths or files to be deleted.
+              paths (List[str]): The relative or absolute list of paths to a set of files or folders to be deleted.
         """
 
         super().__init__(name)

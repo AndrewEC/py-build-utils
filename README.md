@@ -18,11 +18,12 @@ Currently this utility has specialized plugins for executing the following:
 ## Usage
 
 ### Example build.py File
+
 ```python
 import click
 from buildutils import BuildConfiguration
 from buildutils.plugins import CoveragePlugin, IntegrationPlugin, MutationPlugin, FlakePlugin,\
-    GenericCommandPlugin, GenericCleanPlugin, EnsureVenvActivePlugin, with_alias, group_plugins
+    GenericCommandPlugin, GenericCleanPlugin, EnsureVenvActivePlugin, group
 
 
 @click.command()
@@ -36,14 +37,13 @@ def main(plugins: str, list_plugins: bool):
         .config('build.ini')
         .plugins(
             EnsureVenvActivePlugin(),
-            with_alias('clean', GenericCleanPlugin('CLEAN', 'Remove previous build files.')),
-            with_alias('install', GenericCommandPlugin('INSTALL', 'Install required dependencies from requirements.txt file.')),
-            with_alias('generate-models', GenericCommandPlugin('GENERATE', 'Generate OpenAPI models from spec file.')),
+            GenericCleanPlugin('CLEAN', 'Remove previous build files.'),
+            GenericCommandPlugin('INSTALL', 'Install required dependencies from requirements.txt file.'),
             FlakePlugin(),
             CoveragePlugin(),
             IntegrationPlugin(),
             MutationPlugin(),
-            group_plugins(
+            group(
                 'generate-docs',
                 GenericCommandPlugin('PREPARE_DOCS', 'Prepare Sphinx for generating documentation from inline comments.'),
                 GenericCommandPlugin('GENERATE_DOCS', 'Generate documentation from inline comments using Sphinx')

@@ -18,27 +18,32 @@ class GenericCommandPlugin(Plugin):
 
     command: Specifies the command line command that will be executed.
 
-    expectedstatus: Specifies the exit that needs to be returned after completion of the aforementioned command.
-    If the exit status returned by the command is not the same as the value specified in this argument then
-    this plugin will throw an error and stop the build process.
+    expectedstatus: Specifies the exit code that needs to be returned after completion of the aforementioned command
+    for the commands execution to be considered successful. If the exit status returned by the command is not the
+    same as the value specified in this argument then this plugin will throw an error and stop the build process.
     """
 
     def __init__(self, label: str, help_text: str):
-        super().__init__(f'generic-command-{label}', help_text)
+        super().__init__(label, help_text)
         self._label = label
 
     def load_config(self, config: ConfigParser):
         section = config[self._label]
 
         command = section['command']
-        success_status = int(section['expectedstatus'])
-        self._use_command(GenericStatusCommand(self._label, command, success_status))
+        statuses = self._parse_statuses(section['expectedstatus'])
+        self._use_command(_GenericStatusCommand(self._label, command, statuses))
+
+    def _parse_statuses(self, statuses: str) -> List[int]:
+        if ',' not in statuses:
+            return[int(statuses)]
+        return list(map(int, statuses.split(',')))
 
 
-class GenericStatusCommand(StatusBasedProcessCommand):
+class _GenericStatusCommand(StatusBasedProcessCommand):
 
-    def __init__(self, label: str, command: str, status: int):
-        super().__init__(f'generic-command-{label}', status, command)
+    def __init__(self, label: str, command: str, statuses: List[int]):
+        super().__init__(f'generic-command-{label}', statuses, command)
 
 
 class GenericCleanPlugin(Plugin):
@@ -49,22 +54,22 @@ class GenericCleanPlugin(Plugin):
     """
 
     def __init__(self, label: str, help_text: str):
-        super().__init__(f'generic-clean-plugin-{label}', help_text)
+        super().__init__(label, help_text)
         self._label = label
 
     def load_config(self, config: ConfigParser):
         section = config[self._label]
 
         paths = self._parse_paths(section['paths'])
-        self._use_command(GenericCleanupCommand(self._label, paths))
+        self._use_command(_GenericCleanupCommand(self._label, paths))
 
     def _parse_paths(self, paths: str):
         if ',' in paths:
             return [path.strip() for path in paths.split(',')]
-        return [paths]
+        return [paths.strip()]
 
 
-class GenericCleanupCommand(FileCleanupCommand):
+class _GenericCleanupCommand(FileCleanupCommand):
 
     def __init__(self, label: str, paths: List[str]):
         super().__init__(f'generic-cleanup-command-{label}', paths)

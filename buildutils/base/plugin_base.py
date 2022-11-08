@@ -29,7 +29,7 @@ class Plugin(ABC):
             used to specify a subset of all the registered plugins that should be executed.
             help_text (str): A informational message regarding the general purpose of the plugin.
         """
-        self.name = name
+        self.name = name.lower().replace(' ', '_')
         self.help_text = help_text
         self._commands: List[Command] = []
         self._cleanup_command: Command | None = None
@@ -57,7 +57,9 @@ class Plugin(ABC):
     def execute(self) -> bool:
         """
         Executes the plugin. The plugin will execute the series of registered commands in the order in which the
-        command were registered.
+        commands were registered.
+
+        Whether all the commands have been executed this will still execute the cleanup at command at the end.
 
         Returns:
             True if the execution of the command completed without any errors, otherwise false.

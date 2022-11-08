@@ -22,23 +22,32 @@ class PluginGroup(Plugin):
     def load_config(self, config: ConfigParser):
         for plugin in self._actual_plugins:
             plugin.load_config(config)
-            self._use_command(GroupPluginAliasCommand(self.name, plugin))
+            self._use_command(_PluginGroupCommand(self.name, plugin))
 
 
-class GroupPluginAliasCommand(Command):
+class _PluginGroupCommand(Command):
 
     def __init__(self, alias: str, actual_plugin: Plugin):
-        super().__init__(f'{alias}-command')
+        super().__init__(f'{alias}-{actual_plugin.name}')
         self._actual_plugin = actual_plugin
 
     def execute(self) -> bool:
         return self._actual_plugin.execute()
 
 
-def group_plugins(alias: str, *plugins: Plugin) -> PluginGroup:
+def group(alias: str, *plugins: Plugin) -> PluginGroup:
     """
     Group together a various number of plugins in a pseudo plugin that can be executed as part of the regular
     build pipeline.
+
+    This grouping allows a number of plugins to be sequentially executed using the input 'alias' value in place
+    of the name of each individual plugin.
+
+    Typically, this should be used when you have two tightly coupled plugins that must be run together, in sequence,
+    in order to fulfill a larger more complicated process.
+
+    A good example would be generating documentation using Sphinx. Sphinx requires two commands to be run,
+    one to prepare the docs for generation, and one to generate the actual HTML.
 
     Args:
         alias (str): The name the new plugin group can be referenced by.

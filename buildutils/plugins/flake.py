@@ -1,7 +1,6 @@
 import subprocess
 from configparser import ConfigParser
 import re
-from distutils import util
 
 from buildutils.base import Plugin, Command, parse_python_command_string
 
@@ -30,7 +29,7 @@ class FlakePlugin(Plugin):
         flake_section = config['FLAKE8']
 
         command = flake_section['command']
-        fail_on_error = bool(util.strtobool(flake_section['fail_on_error']))
+        fail_on_error = flake_section['fail_on_error'].lower() == 'true'
         self._use_command(_FlakeCommand(command, fail_on_error))
 
 
