@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 from configparser import ConfigParser
 
-from buildutils.base import Plugin, Command
+from buildutils.base import Plugin, as_command
 
 
 class EnsureVenvActivePlugin(Plugin):
@@ -19,20 +19,14 @@ class EnsureVenvActivePlugin(Plugin):
 
     def __init__(self):
         super().__init__('ensure-virtual-env', 'Ensure build is being run from a specific virtual environment.')
+        self._name = None
 
     def load_config(self, config: ConfigParser):
         section = config['ENSURE_VENV']
-        name = section['name']
-        self._use_command(_EnsureVenvActiveCommand(name))
+        self._name = section['name']
+        self._use_command(as_command('ensure-virtual-env-command', self._verify_proper_venv_active))
 
-
-class _EnsureVenvActiveCommand(Command):
-
-    def __init__(self, name: str):
-        super().__init__('ensure-virtual-env-command')
-        self._name = name
-
-    def execute(self) -> bool:
+    def _verify_proper_venv_active(self) -> bool:
         if sys.prefix == sys.base_prefix or Path(sys.prefix).name.lower() != self._name.lower():
             print(f'Build is not being executed in expected virtual environment of: [{self._name}]')
             return False

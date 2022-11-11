@@ -1,10 +1,10 @@
-from typing import List
+from typing import List, Callable
 
 from abc import ABC, abstractmethod
 import traceback
 from configparser import ConfigParser
 
-from .command_base import Command
+from .command_base import Command, as_command
 
 
 class Plugin(ABC):
@@ -30,6 +30,7 @@ class Plugin(ABC):
             help_text (str): A informational message regarding the general purpose of the plugin.
         """
         self.name = name.lower().replace(' ', '_')
+        self.source_name = name
         self.help_text = help_text
         self._commands: List[Command] = []
         self._cleanup_command: Command | None = None
@@ -89,4 +90,21 @@ class Plugin(ABC):
             except Exception as e:
                 print(f'An uncaught exception occurred while running cleanup command [{self._cleanup_command.name}]')
                 print(e)
-                pass
+
+
+class SingleFunctionPlugin(Plugin):
+
+    def __init__(self, name: str, help_text: str, function: Callable[[], bool]):
+        super().__init__(name, help_text)
+        self._command = as_command(f'{name}-command', function)
+
+    def load_config(self, config: ConfigParser):
+        self._use_command(self._command)
+
+
+def as_plugin(name: str, help_text: str, function: Callable[[], bool]) -> Plugin:
+    """
+    Wraps a single function in the context of a plugin so it can be executed as part of the build process.
+    """
+
+    return SingleFunctionPlugin(name, help_text, function)

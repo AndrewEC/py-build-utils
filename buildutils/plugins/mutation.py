@@ -59,9 +59,9 @@ class MutationPlugin(Plugin):
             self._use_command(_MutationTestCoverageCheckCommand(killcount_requirement))
 
         if mutation_section['open_mutation_report'].lower() == 'true':
-            self._use_command(_OpenMutationTestReportCommand())
+            self._use_command(ReportOpenCommand('open-mutation-test-report', _MutationTestReportCommand.TESTBED_REPORT_PATH))
 
-        self._use_command_for_cleanup(_MutationTestCleanupCommand())
+        self._use_command_for_cleanup(FileCleanupCommand('mutation-test-cleanup', ['.mutmut-cache', '_mutmutbed']))
 
 
 class _ChangeDirectory:
@@ -179,15 +179,3 @@ class _MutationTestCoverageCheckCommand(ReportCheckCommand):
     def _sum_all_cells(self, coverage_table_rows: List, cell_index: int):
         cells_to_sum = [row.findAll('td')[cell_index] for row in coverage_table_rows]
         return sum([int(cell.text) for cell in cells_to_sum])
-
-
-class _OpenMutationTestReportCommand(ReportOpenCommand):
-
-    def __init__(self):
-        super().__init__('open-mutation-test-report', _MutationTestReportCommand.TESTBED_REPORT_PATH)
-
-
-class _MutationTestCleanupCommand(FileCleanupCommand):
-
-    def __init__(self):
-        super().__init__('mutation-test-cleanup', ['.mutmut-cache', '_mutmutbed'])

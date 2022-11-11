@@ -5,7 +5,7 @@ document a python project.
 It allows you to write a simple python script to execute a series of build steps. The build steps consist of
 a series of plugins that are executed sequentially. Each plugin can then execute a series of sequential commands.
 
-Currently this utility has specialized plugins for executing the following:
+Currently, this utility has specialized plugins for executing the following:
 * Ensure a particular virtual environment is active
 * Clean previous build artifacts and directories
 * Flake8 static code scanning

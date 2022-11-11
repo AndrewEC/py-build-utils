@@ -12,7 +12,8 @@ class CoveragePlugin(Plugin):
     This plugin looks for configuration values under the COVERAGE section of the configuration file. From that section
     it pulls the values for 'command', 'enable_coverage_check', 'coverage_requirement', and 'open_coverage_report'.
 
-    command: Specifies the coverage command to execute. For example: coverage run --omit=./consumer/tests/* --source=<source_module> --branch --module <test_module>
+    command: Specifies the coverage command to execute. For example:
+    coverage run --omit=./consumer/tests/* --source=<source_module> --branch --module <test_module>
 
     enable_coverage_check: If true the plugin will check the code coverage measured after unit test execution and
     flag the build as a failure if the coverage is below the threshold specified by the coverage_requirement value.
@@ -24,35 +25,29 @@ class CoveragePlugin(Plugin):
     completed assuming that the coverage requirement has either been met or skipped.
     """
 
+    REPORT_PATH = './htmlcov/index.html'
+
     def __init__(self):
-        super().__init__('coverage-test', 'Run unit tests and measure code coverage.')
+        super().__init__('coverage-test', 'Run unit tests and measure code coverage using the Python Coverage package.')
 
     def load_config(self, config: ConfigParser):
         coverage_section = config['COVERAGE']
 
         command = coverage_section['command']
-        self._use_command(_CoverageCommand(command))
-        self._use_command(_CoverageReportCommand())
+        self._use_command(StatusBasedProcessCommand('coverage', [0], command))  # Run the coverage package
+        self._use_command(_CoverageReportCommand())  # Generate the coverage HTML report
 
         if coverage_section['enable_coverage_check'].lower() == 'true':
             coverage_requirement = int(coverage_section['coverage_requirement'])
-            self._use_command(_CoverageCheckCommand(coverage_requirement))
+            self._use_command(_CoverageCheckCommand(coverage_requirement))  # Check if code coverage thresholds are met
 
         if coverage_section['open_coverage_report'].lower() == 'true':
-            self._use_command(_OpenCoverageReportCommand())
+            self._use_command(ReportOpenCommand('open-coverage-report', CoveragePlugin.REPORT_PATH))  # Open coverate HTML report
 
-        self._use_command_for_cleanup(_CoverageCleanupCommand())
-
-
-class _CoverageCommand(StatusBasedProcessCommand):
-
-    def __init__(self, command: str):
-        super().__init__('coverage', [0], command)
+        self._use_command_for_cleanup(FileCleanupCommand('coverage-cleanup', ['.coverage']))
 
 
 class _CoverageReportCommand(StatusBasedProcessCommand):
-
-    REPORT_PATH = './htmlcov/index.html'
 
     def __init__(self):
         super().__init__('coverage-report', [0], 'coverage html')
@@ -60,14 +55,14 @@ class _CoverageReportCommand(StatusBasedProcessCommand):
     def execute(self):
         if not super().execute():
             return False
-        print(f'Coverage report has been generated. It can be found at [{_CoverageReportCommand.REPORT_PATH}].')
+        print(f'Coverage report has been generated. It can be found at [{CoveragePlugin.REPORT_PATH}].')
         return True
 
 
 class _CoverageCheckCommand(ReportCheckCommand):
 
     def __init__(self, coverage_requirement: int):
-        super().__init__('coverage-check', _CoverageReportCommand.REPORT_PATH)
+        super().__init__('coverage-check', CoveragePlugin.REPORT_PATH)
         self._coverage_requirement = coverage_requirement
 
     def _check_report(self, html: BeautifulSoup) -> bool:
@@ -80,15 +75,3 @@ class _CoverageCheckCommand(ReportCheckCommand):
         else:
             print(f'Coverage check passed with coverage at [{total_coverage_percent}]%')
         return True
-
-
-class _OpenCoverageReportCommand(ReportOpenCommand):
-
-    def __init__(self):
-        super().__init__('open-coverage-report', _CoverageReportCommand.REPORT_PATH)
-
-
-class _CoverageCleanupCommand(FileCleanupCommand):
-
-    def __init__(self):
-        super().__init__('coverage-cleanup', ['.coverage'])

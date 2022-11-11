@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Callable
 from abc import ABC, abstractmethod
 
 from pathlib import Path
@@ -20,6 +20,7 @@ def parse_python_command_string(command: str) -> str:
     and the path to the python binary, and replace the {PYTHON_ENV} placeholder in the command string with the
     absolute path to the python binary.
     """
+
     if sys.prefix == sys.base_prefix or _TEMPLATE_PATH not in command:
         return command
     executable_path = str(Path(sys.prefix).joinpath('Scripts').joinpath('python'))
@@ -171,3 +172,25 @@ class FileCleanupCommand(Command):
                 print(f'Cleaning up directory [{path}]')
                 shutil.rmtree(path)
         return True
+
+
+class FunctionCommand(Command):
+
+    """
+    A bare-bones command that wraps a function so it can be executed as part of a plugin.
+    """
+
+    def __init__(self, name: str, function: Callable[[], bool]):
+        super().__init__(name)
+        self._function = function
+
+    def execute(self) -> bool:
+        return self._function()
+
+
+def as_command(name: str, function: Callable[[], bool]) -> Command:
+    """
+    Wraps a function in a command so it can be executed as part of a plugin in the build process.
+    """
+
+    return FunctionCommand(name, function)

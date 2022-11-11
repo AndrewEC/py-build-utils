@@ -25,25 +25,20 @@ class GenericCommandPlugin(Plugin):
 
     def __init__(self, label: str, help_text: str):
         super().__init__(label, help_text)
-        self._label = label
 
     def load_config(self, config: ConfigParser):
-        section = config[self._label]
+        section = config[self.source_name]
 
         command = section['command']
         statuses = self._parse_statuses(section['expectedstatus'])
-        self._use_command(_GenericStatusCommand(self._label, command, statuses))
+
+        command_name = f'generic-command-{self.name}'
+        self._use_command(StatusBasedProcessCommand(command_name, statuses, command))
 
     def _parse_statuses(self, statuses: str) -> List[int]:
         if ',' not in statuses:
             return[int(statuses)]
         return list(map(int, statuses.split(',')))
-
-
-class _GenericStatusCommand(StatusBasedProcessCommand):
-
-    def __init__(self, label: str, command: str, statuses: List[int]):
-        super().__init__(f'generic-command-{label}', statuses, command)
 
 
 class GenericCleanPlugin(Plugin):
@@ -55,21 +50,14 @@ class GenericCleanPlugin(Plugin):
 
     def __init__(self, label: str, help_text: str):
         super().__init__(label, help_text)
-        self._label = label
 
     def load_config(self, config: ConfigParser):
-        section = config[self._label]
+        section = config[self.source_name]
 
         paths = self._parse_paths(section['paths'])
-        self._use_command(_GenericCleanupCommand(self._label, paths))
+        self._use_command(FileCleanupCommand(f'generic-cleanup-command-{self.name}', paths))
 
     def _parse_paths(self, paths: str):
         if ',' in paths:
             return [path.strip() for path in paths.split(',')]
         return [paths.strip()]
-
-
-class _GenericCleanupCommand(FileCleanupCommand):
-
-    def __init__(self, label: str, paths: List[str]):
-        super().__init__(f'generic-cleanup-command-{label}', paths)
