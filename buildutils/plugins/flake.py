@@ -3,6 +3,7 @@ from configparser import ConfigParser
 import re
 
 from buildutils.base import Plugin, Command, parse_python_command_string
+from .config import PluginConfigHelper
 
 
 class FlakePlugin(Plugin):
@@ -26,10 +27,9 @@ class FlakePlugin(Plugin):
         super().__init__('flake8', 'Run flake8 against source files.')
 
     def load_config(self, config: ConfigParser):
-        flake_section = config['FLAKE8']
-
-        command = flake_section['command']
-        fail_on_error = flake_section['fail_on_error'].lower() == 'true'
+        helper = PluginConfigHelper(self, config, 'FLAKE8')
+        command = helper.prop('command')
+        fail_on_error = helper.bool_prop('fail_on_error', 'False')
         self._use_command(_FlakeCommand(command, fail_on_error))
 
 

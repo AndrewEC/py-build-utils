@@ -17,17 +17,16 @@ Click.::
 
     import click
     from buildutils import BuildConfiguration
-    from buildutils.plugins import CoveragePlugin, IntegrationPlugin, MutationPlugin, FlakePlugin,\
+    from buildutils.plugins import CoveragePlugin, FlakePlugin,\
         GenericCommandPlugin, GenericCleanPlugin, EnsureVenvActivePlugin, group
 
 
     @click.command()
+    @click.option('--profile', '-pr')
     @click.option('--plugins', '-p')
     @click.option('--list-plugins', '-l', is_flag=True)
-    def main(plugins: str, list_plugins: bool):
-        plugin_names = plugins.split(',') if plugins is not None else []
-
-        build_config = (
+    def main(profile: str, plugins: str, list_plugins: bool):
+        (
             BuildConfiguration()
             .config('build.ini')
             .plugins(
@@ -36,64 +35,43 @@ Click.::
                 GenericCommandPlugin('INSTALL', 'Install required dependencies from requirements.txt file.'),
                 FlakePlugin(),
                 CoveragePlugin(),
-                IntegrationPlugin(),
-                MutationPlugin(),
                 group(
                     'generate-docs',
                     GenericCommandPlugin('PREPARE_DOCS', 'Prepare Sphinx for generating documentation from inline comments.'),
                     GenericCommandPlugin('GENERATE_DOCS', 'Generate documentation from inline comments using Sphinx')
                 )
             )
+            .build(profile, plugins, list_plugins)
         )
-
-        if list_plugins:
-            return build_config.print_available_plugins()
-
-        build_config.build(plugin_names)
-
-
-    if __name__ == '__main__':
-        main()
 
 
 Below is an example of a build.ini file used to provide the configuration values for the above build script.::
 
+    [BUILD_PROFILE:DOCS]
+    plugins = ensure-virtual-env,clean,install,generate-docs
+
     [ENSURE_VENV]
-    name = python-code-quality-venv
+    name = py-timeout-venv
 
     [CLEAN]
-    paths = .coverage,.mutmut-cache,mappings,__files,consumer-provider.json,html,htmlcov,pact-mock-service.log,log,_mutmutbed
+    paths = .coverage,.mutmut-cache,html,htmlcov,_mutmutbed
 
     [INSTALL]
     command = pip install -r requirements.txt
     expectedstatus = 0
 
-    [GENERATE]
-    command = datamodel-codegen --input ./consumer/producer-open-api-spec.json --output ./consumer/app/generated/producer_models.py
-    expectedstatus = 0
-
     [FLAKE8]
     command = {PYTHON_VENV} -m flake8
-    fail_on_error = True
+    fail_on_error = False
 
     [COVERAGE]
-    command = coverage run --omit=./consumer/tests/* --source=consumer.app --branch --module consumer.tests._run_all
+    command = coverage run --omit=./timeout/tests/* --source=timeout.lib --branch --module timeout.tests.__run_all
     enable_coverage_check = true
     coverage_requirement = 80
     open_coverage_report = false
 
-    [INTEGRATION]
-    command = {PYTHON_VENV} -m unittest consumer.tests.integration.integration_test
-
-    [MUTATION]
-    command = mutmut run
-    test_bed_exclude = python-code-quality-venv
-    enable_killcount_check = true
-    killcount_requirement = 30
-    open_mutation_report = false
-
     [PREPARE_DOCS]
-    command = sphinx-apidoc -o docs/source/ consumer
+    command = sphinx-apidoc -o docs/source/ timeout
     expectedstatus = 0
 
     [GENERATE_DOCS]

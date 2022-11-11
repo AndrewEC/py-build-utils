@@ -3,6 +3,7 @@ from configparser import ConfigParser
 from bs4 import BeautifulSoup
 
 from buildutils.base import Plugin, StatusBasedProcessCommand, ReportCheckCommand, ReportOpenCommand, FileCleanupCommand
+from .config import PluginConfigHelper
 
 
 class CoveragePlugin(Plugin):
@@ -31,17 +32,17 @@ class CoveragePlugin(Plugin):
         super().__init__('coverage-test', 'Run unit tests and measure code coverage using the Python Coverage package.')
 
     def load_config(self, config: ConfigParser):
-        coverage_section = config['COVERAGE']
+        helper = PluginConfigHelper(self, config, 'COVERAGE')
 
-        command = coverage_section['command']
+        command = helper.prop('command')
         self._use_command(StatusBasedProcessCommand('coverage', [0], command))  # Run the coverage package
         self._use_command(_CoverageReportCommand())  # Generate the coverage HTML report
 
-        if coverage_section['enable_coverage_check'].lower() == 'true':
-            coverage_requirement = int(coverage_section['coverage_requirement'])
+        if helper.bool_prop('enable_coverage_check', 'False'):
+            coverage_requirement = helper.int_prop('coverage_requirement')
             self._use_command(_CoverageCheckCommand(coverage_requirement))  # Check if code coverage thresholds are met
 
-        if coverage_section['open_coverage_report'].lower() == 'true':
+        if helper.bool_prop('open_coverage_report', 'False'):
             self._use_command(ReportOpenCommand('open-coverage-report', CoveragePlugin.REPORT_PATH))  # Open coverate HTML report
 
         self._use_command_for_cleanup(FileCleanupCommand('coverage-cleanup', ['.coverage']))

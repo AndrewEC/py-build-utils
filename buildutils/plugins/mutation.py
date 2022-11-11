@@ -8,6 +8,7 @@ import shutil
 from bs4 import BeautifulSoup
 
 from buildutils.base import StatusBasedProcessCommand, ReportCheckCommand, ReportOpenCommand, Plugin, FileCleanupCommand, Command
+from .config import PluginConfigHelper
 
 
 _source_directory = Path(os.getcwd())
@@ -45,20 +46,20 @@ class MutationPlugin(Plugin):
         super().__init__('mutation-test', 'Run mutation tests and measure kill count rates.')
 
     def load_config(self, config: ConfigParser):
-        mutation_section = config['MUTATION']
+        helper = PluginConfigHelper(self, config, 'MUTATION')
 
-        command = mutation_section['command']
-        exclude = mutation_section['test_bed_exclude'].split(',')
+        command = helper.prop('command')
+        exclude = helper.prop('test_bed_exclude').split(',')
         self._use_command(_CreateTestbedCommand(exclude))
         self._use_command(_MutationTestCommand(command))
         self._use_command(_MutationTestReportCommand())
         self._use_command(_MutationTestReportCopyCommand())
 
-        if mutation_section['enable_killcount_check'].lower() == 'true':
-            killcount_requirement = int(mutation_section['killcount_requirement'])
+        if helper.bool_prop('enable_killcount_check', 'False'):
+            killcount_requirement = helper.int_prop('killcount_requirement')
             self._use_command(_MutationTestCoverageCheckCommand(killcount_requirement))
 
-        if mutation_section['open_mutation_report'].lower() == 'true':
+        if helper.bool_prop('open_mutation_report', 'False'):
             self._use_command(ReportOpenCommand('open-mutation-test-report', _MutationTestReportCommand.TESTBED_REPORT_PATH))
 
         self._use_command_for_cleanup(FileCleanupCommand('mutation-test-cleanup', ['.mutmut-cache', '_mutmutbed']))

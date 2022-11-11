@@ -3,6 +3,7 @@ from typing import List
 from configparser import ConfigParser
 
 from buildutils.base import Plugin, StatusBasedProcessCommand, FileCleanupCommand
+from .config import PluginConfigHelper
 
 
 class GenericCommandPlugin(Plugin):
@@ -27,10 +28,10 @@ class GenericCommandPlugin(Plugin):
         super().__init__(label, help_text)
 
     def load_config(self, config: ConfigParser):
-        section = config[self.source_name]
+        helper = PluginConfigHelper(self, config, self.source_name)
 
-        command = section['command']
-        statuses = self._parse_statuses(section['expectedstatus'])
+        command = helper.prop('command')
+        statuses = self._parse_statuses(helper.prop('expectedstatus'))
 
         command_name = f'generic-command-{self.name}'
         self._use_command(StatusBasedProcessCommand(command_name, statuses, command))

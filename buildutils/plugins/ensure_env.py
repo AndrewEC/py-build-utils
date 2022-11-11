@@ -3,6 +3,7 @@ from pathlib import Path
 from configparser import ConfigParser
 
 from buildutils.base import Plugin, as_command
+from .config import PluginConfigHelper
 
 
 class EnsureVenvActivePlugin(Plugin):
@@ -22,8 +23,7 @@ class EnsureVenvActivePlugin(Plugin):
         self._name = None
 
     def load_config(self, config: ConfigParser):
-        section = config['ENSURE_VENV']
-        self._name = section['name']
+        self._name = PluginConfigHelper(self, config, 'ENSURE_VENV').prop('name')
         self._use_command(as_command('ensure-virtual-env-command', self._verify_proper_venv_active))
 
     def _verify_proper_venv_active(self) -> bool:

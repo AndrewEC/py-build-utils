@@ -7,7 +7,8 @@ import os
 from configparser import ConfigParser
 
 from buildutils.base import Plugin
-from buildutils.exceptions import PluginNotFoundException
+from buildutils.exceptions import PluginNotFoundException, ProfileNotFoundException, ConfigNotFoundException,\
+    PropertyMissingException
 
 
 class BuildConfiguration:
@@ -18,6 +19,7 @@ class BuildConfiguration:
     list of plugins to execute.
     """
 
+    _PROFILE_SECTION_TEMPLATE = 'BUILD_PROFILE:{}'
     _DEFAULT_CONFIG_FILE = 'build.ini'
 
     def __init__(self):
@@ -40,10 +42,48 @@ class BuildConfiguration:
                 raise ValueError(f'Two or more plugins tried to register under the same name of: [{plugin.name}]')
             names.add(plugin.name)
 
-    def build(self, plugins_to_execute: List[str]):
+    def _read_plugins_from_profile(self, profile: str | None) -> List[str]:
+        if profile is None:
+            return []
+        config = self._load_config_parser()
+
+        profile_section_name = BuildConfiguration._PROFILE_SECTION_TEMPLATE.format(profile.upper())
+        if profile_section_name not in config:
+            raise ProfileNotFoundException(profile)
+
+        profile_section = config[profile_section_name]
+        if 'plugins' not in profile_section:
+            raise PropertyMissingException(profile_section_name, 'plugins')
+        return profile_section['plugins'].split(',')
+
+    def build(self, profile: str | None = None, plugins: str | None = None, list_plugins=False):
+        """
+        Invoke the build configuration and execute the plugins in the order specified. If no order is specified
+        this will fallback to the order in which the plugins were registered in this configuration.
+
+        Args:
+            profile (str): The optional name of the profile from which the list of plugins to be executed will be
+                pulled from.
+            plugins (str): An optional comma delimited list of plugins to execute. The order in which the plugins will
+                be executed will match the order in which the names appear in this parameter.
+            list_plugins (bool): If True this will print the plugins and their default execution order then exit.
+        """
+
+        print(f'Using configuration file: [{self._config_file}]')
+        if list_plugins:
+            return self.print_available_plugins()
+        plugins_to_execute = self._read_plugins_from_profile(profile)
+        if len(plugins_to_execute) > 0:
+            print(f'Running plugins specified in profile: [{profile}]')
+            return self._build(plugins_to_execute)
+        elif plugins is not None:
+            print(f'Running manually specified plugins: [{plugins}]')
+            return self._build(plugins.split(','))
+        self._build(self.get_plugin_names())
+
+    def _build(self, plugins_to_execute: List[str]):
+        print(f'Executing provided plugins: [{plugins_to_execute}]')
         self._load_config()
-        if len(plugins_to_execute) == 0:
-            self._execute_plugins(self.get_plugin_names())
         self._execute_plugins(plugins_to_execute)
 
     def get_plugin_names(self) -> List[str]:
@@ -55,14 +95,16 @@ class BuildConfiguration:
         for plugin in self._plugins:
             print(str(plugin))
 
-    def _load_config(self):
+    def _load_config_parser(self) -> ConfigParser:
         if not os.path.isfile(self._config_file):
-            print(f'Build config file could not be found at [{self._config_file}]')
-            return
+            raise ConfigNotFoundException(self._config_file)
 
         config = ConfigParser()
         config.read(self._config_file)
+        return config
 
+    def _load_config(self):
+        config = self._load_config_parser()
         for plugin in self._plugins:
             plugin.load_config(config)
 
@@ -73,7 +115,7 @@ class BuildConfiguration:
         for plugin_name in plugins_to_execute:
             plugin = self._get_plugin_with_name(plugin_name)
             if plugin is None:
-                raise PluginNotFoundException(plugin_name, 'A plugin matching the specified name could not be found.')
+                raise PluginNotFoundException(plugin_name)
             try:
                 print(f'\n--------------- Running Plugin: {plugin.name} ---------------')
                 if not plugin.execute():
