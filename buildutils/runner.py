@@ -58,8 +58,15 @@ class BuildConfiguration:
 
     def build(self, profile: str | None = None, plugins: str | None = None, list_plugins=False):
         """
-        Invoke the build configuration and execute the plugins in the order specified. If no order is specified
-        this will fallback to the order in which the plugins were registered in this configuration.
+        Execute the build plugins in the specified order. The order in which the plugins will be executed will be
+        determined in the following way.
+
+        1. If the profile argument is present then lookup the profile from the build configuration and get the plugin
+            order.
+        2. If the plugins argument is present then parse the comma delimited list of plugins and execute the plugins
+            in the order specified.
+        3. If neither the profile nor the plugins argument are present then execute all the plugins in the order they
+            were registered.
 
         Args:
             profile (str): The optional name of the profile from which the list of plugins to be executed will be

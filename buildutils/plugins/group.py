@@ -2,7 +2,7 @@ from typing import Tuple
 
 from configparser import ConfigParser
 
-from buildutils.base import Plugin, Command
+from buildutils.base import Plugin, Command, as_command
 
 
 def _form_help_text(plugins: Tuple[Plugin]):
@@ -22,17 +22,8 @@ class PluginGroup(Plugin):
     def load_config(self, config: ConfigParser):
         for plugin in self._actual_plugins:
             plugin.load_config(config)
-            self._use_command(_PluginGroupCommand(self.name, plugin))
-
-
-class _PluginGroupCommand(Command):
-
-    def __init__(self, alias: str, actual_plugin: Plugin):
-        super().__init__(f'{alias}-{actual_plugin.name}')
-        self._actual_plugin = actual_plugin
-
-    def execute(self) -> bool:
-        return self._actual_plugin.execute()
+            command = as_command(f'{self.source_name}-{plugin.name}', plugin.execute)
+            self._use_command(command)
 
 
 def group(alias: str, *plugins: Plugin) -> PluginGroup:
@@ -47,7 +38,9 @@ def group(alias: str, *plugins: Plugin) -> PluginGroup:
     in order to fulfill a larger more complicated process.
 
     A good example would be generating documentation using Sphinx. Sphinx requires two commands to be run,
-    one to prepare the docs for generation, and one to generate the actual HTML.
+    one to prepare the docs for generation, and one to generate the actual HTML. The second command cannot be executed
+    without running the first command and running the first command without running the second won't yield any
+    meaningful result.
 
     Args:
         alias (str): The name the new plugin group can be referenced by.
