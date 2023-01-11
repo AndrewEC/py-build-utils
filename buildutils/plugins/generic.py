@@ -28,10 +28,10 @@ class GenericCommandPlugin(Plugin):
         super().__init__(label, help_text)
 
     def load_config(self, config: ConfigParser):
-        helper = PluginConfigHelper(self, config, self.source_name)
+        helper = PluginConfigHelper(self, config)
 
         command = helper.prop('command')
-        statuses = self._parse_statuses(helper.prop('expectedstatus'))
+        statuses = helper.int_list_prop('expectedstatus')
 
         command_name = f'generic-command-{self.name}'
         self._use_command(StatusBasedProcessCommand(command_name, statuses, command))
@@ -53,9 +53,7 @@ class GenericCleanPlugin(Plugin):
         super().__init__(label, help_text)
 
     def load_config(self, config: ConfigParser):
-        section = config[self.source_name]
-
-        paths = self._parse_paths(section['paths'])
+        paths = PluginConfigHelper(self, config).list_prop('paths')
         self._use_command(FileCleanupCommand(f'generic-cleanup-command-{self.name}', paths))
 
     def _parse_paths(self, paths: str):

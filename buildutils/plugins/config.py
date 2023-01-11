@@ -1,3 +1,5 @@
+from typing import List
+
 from configparser import ConfigParser
 
 from buildutils.base import Plugin
@@ -11,13 +13,13 @@ class PluginConfigHelper:
     no value can be read.
     """
 
-    def __init__(self, plugin: Plugin, config: ConfigParser, section_name: str):
+    def __init__(self, plugin: Plugin, config: ConfigParser, section_name: str = None):
+        self._section_name = section_name if section_name is not None else plugin.source_name
         if section_name not in config:
             raise PluginSectionMissingException(plugin.name, section_name)
 
         self._plugin_name = plugin.name
         self._section = config[section_name]
-        self._section_name = section_name
 
     def prop(self, name: str, default_value: str | None = None) -> str:
         """Attempts to load a value from the appropriate section of the config parser. Will throw an exception
@@ -34,6 +36,12 @@ class PluginConfigHelper:
                 return default_value
             raise PluginPropertyMissingException(self._plugin_name, self._section_name, name)
         return self._section[name]
+
+    def list_prop(self, name: str, default_value: str | None = None) -> List[str]:
+        return [item.strip() for item in self.prop(name, default_value).split(',')]
+
+    def int_list_prop(self, name: str, default_value: str | None = None) -> List[int]:
+        return list(map(int, self.list_prop(name, default_value)))
 
     def bool_prop(self, name: str, default_value: str | None = None) -> bool:
         return self.prop(name, default_value).lower() in ['true', '1', 't', 'y', 'yes']

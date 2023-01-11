@@ -102,7 +102,7 @@ class _CreateTestbedCommand(Command):
         return True
 
     def _list_files(self, root: Path) -> List[Path]:
-        files = list(map(root.joinpath, os.listdir(root)))
+        files = list(root.iterdir())
         return [file for file in files if file.name != '.git' and file.name != '_mutmutbed']
 
 
