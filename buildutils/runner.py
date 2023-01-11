@@ -113,6 +113,7 @@ class BuildConfiguration:
     def _load_config(self):
         config = self._load_config_parser()
         for plugin in self._plugins:
+            print(f'Loading config for plugin: [{plugin.name}]')
             plugin.load_config(config)
 
     def _get_plugin_with_name(self, plugin_name: str) -> Plugin | None:

@@ -15,14 +15,15 @@ class PluginConfigHelper:
 
     def __init__(self, plugin: Plugin, config: ConfigParser, section_name: str = None):
         self._section_name = section_name if section_name is not None else plugin.source_name
-        if section_name not in config:
-            raise PluginSectionMissingException(plugin.name, section_name)
+        if self._section_name not in config:
+            raise PluginSectionMissingException(plugin.name, self._section_name)
 
         self._plugin_name = plugin.name
-        self._section = config[section_name]
+        self._section = config[self._section_name]
 
     def prop(self, name: str, default_value: str | None = None) -> str:
-        """Attempts to load a value from the appropriate section of the config parser. Will throw an exception
+        """
+        Attempts to load a value from the appropriate section of the config parser. Will throw an exception
         if the name of the property cannot be found within the config section and if no default value
         has been specified.
 

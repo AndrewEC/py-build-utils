@@ -25,7 +25,7 @@ class PropertyMissingException(Exception):
 class PluginSectionMissingException(Exception):
 
     def __init__(self, plugin: str, section: str):
-        super().__init__(f'Coudl not find the [{section}] as required for the plugin [{plugin}] in the config file.')
+        super().__init__(f'Could not find the section [{section}] as required for the plugin [{plugin}] in the config file.')
 
 
 class PluginPropertyMissingException(Exception):
