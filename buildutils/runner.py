@@ -93,7 +93,7 @@ class BuildConfiguration:
             print(f'Using manually specified plugins: [{plugins}]')
             return plugins_to_execute
 
-        print('Running all available plugins in registered order.')
+        print('Using all available plugins in registered order.')
         return self.get_plugin_names()
 
     def _build(self, plugins_to_execute: List[str]):
