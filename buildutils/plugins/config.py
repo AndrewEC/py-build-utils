@@ -38,11 +38,11 @@ class PluginConfigHelper:
             raise PluginPropertyMissingException(self._plugin_name, self._section_name, name)
         return self._section[name]
 
-    def list_prop(self, name: str, default_value: str | None = None) -> List[str]:
-        return [item.strip() for item in self.prop(name, default_value).split(',')]
+    def list_prop(self, name: str, delimiter: str = ',', default_value: str | None = None) -> List[str]:
+        return self.prop(name, default_value).split(delimiter)
 
-    def int_list_prop(self, name: str, default_value: str | None = None) -> List[int]:
-        return list(map(int, self.list_prop(name, default_value)))
+    def int_list_prop(self, name: str, delimiter: str = ',', default_value: str | None = None) -> List[int]:
+        return list(map(int, self.list_prop(name, delimiter, default_value)))
 
     def bool_prop(self, name: str, default_value: str | None = None) -> bool:
         return self.prop(name, default_value).lower() in ['true', '1', 't', 'y', 'yes']

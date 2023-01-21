@@ -77,16 +77,24 @@ class BuildConfiguration:
         """
 
         print(f'Using configuration file: [{self._config_file}]')
+        plugins_to_execute = self._get_plugins_to_execute(profile, plugins)
         if list_plugins:
-            return self.print_available_plugins()
+            return self.print_available_plugins(plugins_to_execute)
+        self._build(plugins_to_execute)
+
+    def _get_plugins_to_execute(self, profile: str | None, plugins: str | None) -> List[str]:
         plugins_to_execute = self._read_plugins_from_profile(profile)
         if len(plugins_to_execute) > 0:
-            print(f'Running plugins specified in profile: [{profile}]')
-            return self._build(plugins_to_execute)
-        elif plugins is not None:
-            print(f'Running manually specified plugins: [{plugins}]')
-            return self._build(plugins.split(','))
-        self._build(self.get_plugin_names())
+            print(f'Using plugins specified in profile: [{profile}]')
+            return plugins_to_execute
+
+        plugins_to_execute = plugins.split(',') if plugins is not None else []
+        if len(plugins_to_execute) > 0:
+            print(f'Using manually specified plugins: [{plugins}]')
+            return plugins_to_execute
+
+        print('Running all available plugins in registered order.')
+        return self.get_plugin_names()
 
     def _build(self, plugins_to_execute: List[str]):
         print(f'Executing provided plugins: [{plugins_to_execute}]')
@@ -96,10 +104,13 @@ class BuildConfiguration:
     def get_plugin_names(self) -> List[str]:
         return [plugin.name.lower() for plugin in self._plugins]
 
-    def print_available_plugins(self):
+    def print_available_plugins(self, plugin_names: List[str]):
         print('List of available plugins:')
         print('----- ----- ----- ----- -----')
-        for plugin in self._plugins:
+        for plugin_name in plugin_names:
+            plugin = self._get_plugin_with_name(plugin_name)
+            if plugin is None:
+                raise PluginNotFoundException(plugin_name)
             print(str(plugin))
 
     def _load_config_parser(self) -> ConfigParser:
