@@ -92,11 +92,19 @@ class _ApplyOperatorFiltersCommand(StatusBasedProcessCommand):
     def __init__(self, config_file: str):
         super().__init__('mutation-filter-operators', [0], f'cr-filter-operators mutations.sqlite {config_file}')
 
+    def execute(self) -> bool:
+        with _ChangeDirectory(_source_directory, _testbed_directory):
+            return super().execute()
+
 
 class _ApplyPragmaFiltersCommand(StatusBasedProcessCommand):
 
     def __init__(self):
         super().__init__('mutation-filter-pragma-lines', [0], 'cr-filter-pragma mutations.sqlite')
+
+    def execute(self) -> bool:
+        with _ChangeDirectory(_source_directory, _testbed_directory):
+            return super().execute()
 
 
 class _CreateTestbedCommand(Command):
