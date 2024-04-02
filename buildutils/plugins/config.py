@@ -49,6 +49,3 @@ class PluginConfigHelper:
 
     def int_prop(self, name: str, default_value: str | None = None) -> int:
         return int(self.prop(name, default_value))
-
-    def float_prop(self, name: str, default_value: str | None = None) -> float:
-        return float(self.prop(name, default_value))
