@@ -4,6 +4,7 @@ import os
 from configparser import ConfigParser
 from pathlib import Path
 import shutil
+import subprocess
 
 from bs4 import BeautifulSoup
 
@@ -161,6 +162,14 @@ class _MutationTestReportCommand(StatusBasedProcessCommand):
                 return False
             print(f'Temp mutation report at [{_MutationTestReportCommand.TESTBED_REPORT_PATH}]')
             return True
+
+    def _execute_command(self) -> int:
+        print(f'Executing subprocess with command string [{self._command}]')
+        with open('index.html', 'wb') as file:
+            process = subprocess.Popen(self._command, stdout=file)
+            process.communicate()
+            status = process.wait()
+        return status
 
 
 class _MutationTestReportCopyCommand(Command):
