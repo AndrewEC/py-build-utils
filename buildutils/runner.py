@@ -7,7 +7,7 @@ import os
 from configparser import ConfigParser
 
 from buildutils.base import Plugin
-from buildutils.exceptions import PluginNotFoundException, ProfileNotFoundException, ConfigNotFoundException,\
+from buildutils.exceptions import PluginNotFoundException, ProfileNotFoundException, ConfigNotFoundException, \
     PropertyMissingException
 
 

@@ -109,7 +109,7 @@ Configuration
 
     [MY_COMMAND]
     command = enter_your_command_here
-    expectedstatus = 0
+    expected_status = 0
 
 
 GenericCleanPlugin

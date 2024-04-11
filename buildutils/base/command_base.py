@@ -81,7 +81,7 @@ class StatusBasedProcessCommand(Command):
 
     def _execute_command(self) -> int:
         parsed_command = parse_python_command_string(self._command)
-        print(f'Executing subprocess with command string [{parsed_command}]')
+        print(f'Executing subprocess [{parsed_command}]')
         process = subprocess.Popen(parsed_command)
         process.communicate()
         status = process.wait()

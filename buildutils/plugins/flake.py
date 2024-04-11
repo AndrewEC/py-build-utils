@@ -56,7 +56,7 @@ class _FlakeCommand(Command):
 
         if self._fail_on_error and self._contains_lint_error(output):
             print('At least one linting error was identified when running flake8.')
-            print('You can continue the build when linting errors are presenting using the fail_on_error option under the [FLAKE8] config')
+            print('You can continue the build when linting errors are present by setting the fail_on_error option under the [FLAKE8] config to False.')
             return False
         return True
 

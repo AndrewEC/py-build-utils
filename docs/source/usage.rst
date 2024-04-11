@@ -58,7 +58,7 @@ Below is an example of a build.ini file used to provide the configuration values
 
     [INSTALL]
     command = pip install -r requirements.txt
-    expectedstatus = 0
+    expected_status = 0
 
     [FLAKE8]
     command = {PYTHON_VENV} -m flake8
@@ -72,8 +72,8 @@ Below is an example of a build.ini file used to provide the configuration values
 
     [PREPARE_DOCS]
     command = sphinx-apidoc -o docs/source/ timeout
-    expectedstatus = 0
+    expected_status = 0
 
     [GENERATE_DOCS]
     command = sphinx-build -b html docs/source/ docs/build/
-    expectedstatus = 0
+    expected_status = 0

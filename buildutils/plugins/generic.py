@@ -31,14 +31,14 @@ class GenericCommandPlugin(Plugin):
         helper = PluginConfigHelper(self, config)
 
         command = helper.prop('command')
-        statuses = helper.int_list_prop('expectedstatus')
+        statuses = helper.int_list_prop('expected_status')
 
         command_name = f'generic-command-{self.name}'
         self._use_command(StatusBasedProcessCommand(command_name, statuses, command))
 
     def _parse_statuses(self, statuses: str) -> List[int]:
         if ',' not in statuses:
-            return[int(statuses)]
+            return [int(statuses)]
         return list(map(int, statuses.split(',')))
 
 

@@ -10,6 +10,6 @@ if __name__ == '__main__':
         url='https://github.com/AndrewEC/py-build-utils',
         packages=['buildutils', 'buildutils.base', 'buildutils.plugins', 'buildutils.exceptions'],
         install_requires=[
-            'beautifulsoup4==4.10.0'
+            'beautifulsoup4==4.12.3'
         ]
     )
