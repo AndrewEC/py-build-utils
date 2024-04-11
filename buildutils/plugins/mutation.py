@@ -4,7 +4,6 @@ import os
 from configparser import ConfigParser
 from pathlib import Path
 import shutil
-import math
 
 from bs4 import BeautifulSoup
 
@@ -154,7 +153,7 @@ class _MutationTestReportCopyCommand(Command):
 class _MutationTestCoverageCheckCommand(ReportCheckCommand):
 
     _EXECUTED_MUTANT_CELL_INDEX = 1
-    _SURVIVED_MUTANT_CELL_INDEX = 4
+    _SURVIVED_MUTANT_CELL_INDEX = 3
     _SOURCE_REPORT_PATH = './html/index.html'
 
     def __init__(self, killcount_requirement: int):
@@ -179,6 +178,6 @@ class _MutationTestCoverageCheckCommand(ReportCheckCommand):
     def _calculate_total_mutants_survived(self, coverage_table_rows: List):
         return self._sum_all_cells(coverage_table_rows, _MutationTestCoverageCheckCommand._SURVIVED_MUTANT_CELL_INDEX)
 
-    def _sum_all_cells(self, coverage_table_rows: List, cell_index: int) -> float:
+    def _sum_all_cells(self, coverage_table_rows: List, cell_index: int):
         cells_to_sum = [row.findAll('td')[cell_index] for row in coverage_table_rows]
-        return math.fsum(float(cell.text) for cell in cells_to_sum)
+        return sum([int(cell.text) for cell in cells_to_sum])
