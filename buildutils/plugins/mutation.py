@@ -4,10 +4,12 @@ import os
 from configparser import ConfigParser
 from pathlib import Path
 import shutil
+import math
 
 from bs4 import BeautifulSoup
 
-from buildutils.base import StatusBasedProcessCommand, ReportCheckCommand, ReportOpenCommand, Plugin, FileCleanupCommand, Command
+from buildutils.base import (StatusBasedProcessCommand, ReportCheckCommand, ReportOpenCommand, Plugin,
+                             FileCleanupCommand, Command)
 from .config import PluginConfigHelper
 
 
@@ -177,6 +179,6 @@ class _MutationTestCoverageCheckCommand(ReportCheckCommand):
     def _calculate_total_mutants_survived(self, coverage_table_rows: List):
         return self._sum_all_cells(coverage_table_rows, _MutationTestCoverageCheckCommand._SURVIVED_MUTANT_CELL_INDEX)
 
-    def _sum_all_cells(self, coverage_table_rows: List, cell_index: int):
+    def _sum_all_cells(self, coverage_table_rows: List, cell_index: int) -> float:
         cells_to_sum = [row.findAll('td')[cell_index] for row in coverage_table_rows]
-        return sum([int(cell.text) for cell in cells_to_sum])
+        return math.fsum(float(cell.text) for cell in cells_to_sum)
