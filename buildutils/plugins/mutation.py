@@ -153,7 +153,7 @@ class _MutationTestReportCopyCommand(Command):
 class _MutationTestCoverageCheckCommand(ReportCheckCommand):
 
     _EXECUTED_MUTANT_CELL_INDEX = 1
-    _SURVIVED_MUTANT_CELL_INDEX = 3
+    _SURVIVED_MUTANT_CELL_INDEX = 5
     _SOURCE_REPORT_PATH = './html/index.html'
 
     def __init__(self, killcount_requirement: int):
