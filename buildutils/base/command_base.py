@@ -10,7 +10,8 @@ import subprocess
 from bs4 import BeautifulSoup
 
 
-_TEMPLATE_PATH = '{PYTHON_VENV}'
+_PYTHON_TEMPLATE = '{PYTHON_VENV}'
+_PIP_TEMPLATE = '{PIP_VENV}'
 
 
 def parse_python_command_string(command: str) -> str:
@@ -21,10 +22,11 @@ def parse_python_command_string(command: str) -> str:
     absolute path to the python binary.
     """
 
-    if sys.prefix == sys.base_prefix or _TEMPLATE_PATH not in command:
+    if sys.prefix == sys.base_prefix or (_PYTHON_TEMPLATE not in command and _PIP_TEMPLATE not in command):
         return command
-    executable_path = str(Path(sys.prefix).joinpath('Scripts').joinpath('python'))
-    return command.replace(_TEMPLATE_PATH, executable_path)
+    python_executable_path = str(Path(sys.prefix).joinpath('Scripts').joinpath('python'))
+    pip_executable_path = str(Path(sys.prefix).joinpath('Scripts').joinpath('pip'))
+    return command.replace(_PYTHON_TEMPLATE, python_executable_path).replace(_PIP_TEMPLATE, pip_executable_path)
 
 
 class Command(ABC):
