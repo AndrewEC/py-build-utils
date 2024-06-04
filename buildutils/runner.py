@@ -98,7 +98,7 @@ class BuildConfiguration:
 
     def _build(self, plugins_to_execute: List[str]):
         print(f'Executing provided plugins: [{plugins_to_execute}]')
-        self._load_config()
+        self._load_config(plugins_to_execute)
         self._execute_plugins(plugins_to_execute)
 
     def get_plugin_names(self) -> List[str]:
@@ -121,9 +121,12 @@ class BuildConfiguration:
         config.read(self._config_file)
         return config
 
-    def _load_config(self):
+    def _load_config(self, plugins_to_execute: List[str]):
         config = self._load_config_parser()
-        for plugin in self._plugins:
+        for plugin_name in plugins_to_execute:
+            plugin = self._get_plugin_with_name(plugin_name)
+            if plugin is None:
+                raise PluginNotFoundException(plugin_name)
             print(f'Loading config for plugin: [{plugin.name}]')
             plugin.load_config(config)
 
