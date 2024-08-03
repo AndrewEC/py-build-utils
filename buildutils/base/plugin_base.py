@@ -82,14 +82,16 @@ class Plugin(ABC):
         return True
 
     def _run_cleanup(self):
-        if self._cleanup_command is not None:
-            print(f'Running cleanup command [{self._cleanup_command.name}]')
-            try:
-                if not self._cleanup_command.execute():
-                    print(f'Cleanup command [{self._cleanup_command.name}] reported failure.')
-            except Exception as e:
-                print(f'An uncaught exception occurred while running cleanup command [{self._cleanup_command.name}]')
-                print(e)
+        if self._cleanup_command is None:
+            return
+
+        print(f'Running cleanup command [{self._cleanup_command.name}]')
+        try:
+            if not self._cleanup_command.execute():
+                print(f'Cleanup command [{self._cleanup_command.name}] reported a failure.')
+        except Exception as e:
+            print(f'An uncaught exception occurred while running cleanup command [{self._cleanup_command.name}]')
+            print(e)
 
 
 class SingleFunctionPlugin(Plugin):

@@ -64,8 +64,8 @@ class _FlakeCommand(Command):
         lines = output.split('\n')
         for error_expression in [_FlakeCommand._ERROR_EXPRESSION, _FlakeCommand._FATAL_EXPRESSION]:
             pattern = re.compile(error_expression)
-            first_error = next((line for line in lines if pattern.match(line) is not None), None)
-            if first_error is not None:
+            first_match = next((line for line in lines if pattern.match(line) is not None), None)
+            if first_match is not None:
                 return True
         return False
 
@@ -76,6 +76,6 @@ class _FlakeCommand(Command):
         (output, err) = process.communicate()
         status = process.wait()
         if status != 0 and status != 1:
-            print(f'Flake8 Error: [{err}]')
+            print(f'Flake8 command completed with an error: [{err}]')
             return None
         return output

@@ -69,26 +69,6 @@ Configuration
     coverage_requirement = 80
     open_coverage_report = false
 
-
-MutationPlugin
-~~~~~~~~~~~~~~
-
-The mutation plugin is responsible for executing mutation tests, generating a report, and, optionally, checking
-against kill count metrics. This plugin assumes that you are using mutmut to execute your mutation tests.
-
-Configuration
-^^^^^^^^^^^^^
-
-::
-
-    [MUTATION]
-    command = mutmut run
-    test_bed_exclude = paths_to_exclude_from_testing
-    enable_killcount_check = true
-    killcount_requirement = 75
-    open_mutation_report = false
-
-
 GenericCommandPlugin
 ~~~~~~~~~~~~~~~~~~~~
 
