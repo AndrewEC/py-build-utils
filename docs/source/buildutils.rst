@@ -7,7 +7,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   buildutils.base
+   buildutils.commands
    buildutils.exceptions
    buildutils.plugins
 

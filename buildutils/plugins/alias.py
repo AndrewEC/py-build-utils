@@ -1,5 +1,5 @@
 from .group import PluginGroup
-from buildutils.base import Plugin
+from .base import Plugin
 
 
 class PluginAlias(PluginGroup):

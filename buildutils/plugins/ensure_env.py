@@ -2,7 +2,9 @@ import sys
 from pathlib import Path
 from configparser import ConfigParser
 
-from buildutils.base import Plugin, as_command
+from buildutils.commands import as_command
+
+from .base import Plugin
 from .config import PluginConfigHelper
 
 
@@ -27,6 +29,7 @@ class EnsureVenvActivePlugin(Plugin):
         self._use_command(as_command('ensure-virtual-env-command', self._verify_proper_venv_active))
 
     def _verify_proper_venv_active(self) -> bool:
+        print(f'Ensuring commands are being run in virtual environment of: [{self._name}]')
         if sys.prefix == sys.base_prefix or Path(sys.prefix).name.lower() != self._name.lower():
             print(f'Build is not being executed in expected virtual environment of: [{self._name}]')
             return False

@@ -2,7 +2,9 @@ from typing import List
 
 from configparser import ConfigParser
 
-from buildutils.base import Plugin, StatusBasedProcessCommand, FileCleanupCommand
+from buildutils.commands import StatusBasedProcessCommand, FileCleanupCommand
+
+from .base import Plugin
 from .config import PluginConfigHelper
 
 

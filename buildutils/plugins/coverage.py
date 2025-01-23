@@ -2,7 +2,14 @@ from configparser import ConfigParser
 
 from bs4 import BeautifulSoup
 
-from buildutils.base import Plugin, StatusBasedProcessCommand, ReportCheckCommand, ReportOpenCommand, FileCleanupCommand
+from buildutils.commands import (
+    StatusBasedProcessCommand,
+    ReportOpenCommand,
+    ReportCheckCommand,
+    FileCleanupCommand
+)
+
+from .base import Plugin
 from .config import PluginConfigHelper
 
 

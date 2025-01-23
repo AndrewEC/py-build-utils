@@ -2,7 +2,9 @@ from typing import Tuple
 
 from configparser import ConfigParser
 
-from buildutils.base import Plugin, as_command
+from buildutils.commands import as_command
+
+from .base import Plugin
 
 
 def _form_help_text(plugins: Tuple[Plugin]):

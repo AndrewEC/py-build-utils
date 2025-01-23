@@ -1,3 +1,4 @@
+from .base import *
 from .coverage import CoveragePlugin
 from .flake import FlakePlugin
 from .generic import GenericCommandPlugin, GenericCleanPlugin

@@ -2,8 +2,9 @@ from typing import List
 
 from configparser import ConfigParser
 
-from buildutils.base import Plugin
 from buildutils.exceptions import PluginSectionMissingException, PluginPropertyMissingException
+
+from .base import Plugin
 
 
 class PluginConfigHelper:

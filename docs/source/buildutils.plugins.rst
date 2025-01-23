@@ -1,6 +1,14 @@
 buildutils.plugins package
 ==========================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   buildutils.plugins.base
+
 Submodules
 ----------
 
@@ -8,6 +16,14 @@ buildutils.plugins.alias module
 -------------------------------
 
 .. automodule:: buildutils.plugins.alias
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+buildutils.plugins.config module
+--------------------------------
+
+.. automodule:: buildutils.plugins.config
    :members:
    :undoc-members:
    :show-inheritance:
@@ -48,14 +64,6 @@ buildutils.plugins.group module
 -------------------------------
 
 .. automodule:: buildutils.plugins.group
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-buildutils.plugins.mutation module
-----------------------------------
-
-.. automodule:: buildutils.plugins.mutation
    :members:
    :undoc-members:
    :show-inheritance:

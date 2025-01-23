@@ -2,7 +2,9 @@ import subprocess
 from configparser import ConfigParser
 import re
 
-from buildutils.base import Plugin, Command, parse_python_command_string
+from buildutils.commands import Command, parse_python_command_string
+
+from .base import Plugin
 from .config import PluginConfigHelper
 
 
